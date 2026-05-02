@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPM NIWAS Training Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root{
+      --bg:#eef7fb;--panel:#ffffff;--ink:#123047;--muted:#6a7b89;--line:#d7e6ee;
+      --blue:#0f77b4;--teal:#00a7a5;--green:#34a853;--amber:#f5a623;--red:#e05252;--violet:#7257d5;
+      --shadow:0 18px 40px rgba(22,61,83,.12);--radius:22px;
+    }
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(135deg,#eaf7ff 0%,#f7fbff 42%,#eefaf7 100%);color:var(--ink)}
+    header{padding:26px 34px 18px;background:linear-gradient(135deg,#0f77b4 0%,#00a7a5 70%,#40c4a4 100%);color:white;position:sticky;top:0;z-index:10;box-shadow:0 8px 24px rgba(15,119,180,.2)}
+    .top{display:flex;justify-content:space-between;gap:20px;align-items:center;flex-wrap:wrap}.title h1{margin:0;font-size:28px;letter-spacing:.2px}.title p{margin:7px 0 0;opacity:.9;font-size:14px}.filters{display:flex;gap:12px;align-items:end;flex-wrap:wrap}.tabs{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}.tabBtn{border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.18);color:white;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer}.tabBtn.active{background:white;color:#0f4768;box-shadow:0 8px 20px rgba(0,0,0,.14)}.tabPanel{display:none}.tabPanel.active{display:block}.filterBox label{display:block;font-size:12px;margin-bottom:6px;opacity:.9}.filterBox select,.filterBox button{height:42px;border:0;border-radius:13px;padding:0 14px;font-weight:700;background:white;color:#0f4768;box-shadow:0 8px 20px rgba(0,0,0,.12)}.filterBox button{cursor:pointer;background:#083b57;color:white}
+    main{padding:24px 30px 40px;max-width:1480px;margin:auto}.status{padding:12px 16px;border-radius:14px;background:#fff7de;border:1px solid #f5d37b;color:#704f00;margin-bottom:16px;display:none}.grid{display:grid;gap:18px}.kpis{grid-template-columns:repeat(5,minmax(160px,1fr));margin-bottom:18px}.card{background:rgba(255,255,255,.92);border:1px solid rgba(215,230,238,.9);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}.kpi{position:relative;overflow:hidden}.kpi:after{content:"";position:absolute;right:-24px;top:-24px;width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,rgba(15,119,180,.13),rgba(0,167,165,.1))}.kpi .label{font-size:13px;color:var(--muted);font-weight:700}.kpi .value{font-size:27px;font-weight:900;margin-top:8px}.kpi .hint{font-size:12px;color:var(--muted);margin-top:4px}.charts{grid-template-columns:1.15fr .85fr}.charts2{grid-template-columns:.9fr 1.1fr;margin-top:18px}.card h2{font-size:17px;margin:0 0 12px}.chartWrap{height:360px}.tableCard{margin-top:18px}.tableTools{display:flex;justify-content:space-between;gap:12px;margin-bottom:12px;align-items:center;flex-wrap:wrap}.search{height:38px;border:1px solid var(--line);border-radius:12px;padding:0 12px;min-width:260px}.tableWrap{overflow:auto;max-height:480px}table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:10px 11px;border-bottom:1px solid #e7f0f5;text-align:left;vertical-align:top}th{position:sticky;top:0;background:#f2f9fc;color:#16445f;font-size:12px;text-transform:uppercase;letter-spacing:.04em}tr:hover td{background:#fbfdff}.pill{display:inline-block;padding:4px 9px;border-radius:999px;background:#e9f8f7;color:#007c7a;font-weight:800;font-size:12px}.small{font-size:12px;color:var(--muted)}footer{padding:0 30px 26px;max-width:1480px;margin:auto;color:var(--muted);font-size:12px}.clickMetric{cursor:pointer;color:#0f77b4;text-decoration:underline;text-underline-offset:4px}.clickMetric:hover{color:#005b8f}.miniLink{border:0;background:transparent;color:#0f77b4;font-weight:900;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0;font:inherit}.drillOverlay{position:fixed;inset:0;background:rgba(8,32,47,.58);z-index:50;display:none;align-items:flex-start;justify-content:center;padding:32px 18px;overflow:auto}.drillBox{width:min(1180px,96vw);background:white;border-radius:24px;box-shadow:0 24px 70px rgba(0,0,0,.28);border:1px solid #d7e6ee;overflow:hidden}.drillHead{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:18px 22px;background:linear-gradient(135deg,#0f77b4,#00a7a5);color:white}.drillHead h2{margin:0;font-size:18px}.drillHead button{border:0;background:white;color:#0f4768;border-radius:999px;padding:8px 14px;font-weight:900;cursor:pointer}.drillBody{padding:18px;max-height:70vh;overflow:auto}.drillSummary{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}.summaryChip{background:#eef7fb;border:1px solid #d7e6ee;border-radius:999px;padding:8px 12px;font-weight:800;color:#16445f}.mutedNote{font-size:12px;color:var(--muted);margin-bottom:10px}.summaryBlock{background:#204f8f;border-radius:18px;padding:22px;margin:16px 0;border-bottom:4px solid #ffff00}.summaryTitle{background:#bfe8d5;border:2px solid #f1f500;text-align:center;font-size:20px;font-weight:950;letter-spacing:.2px;padding:8px;margin:0 auto 18px;max-width:980px;color:#061b1f}.summaryGrid{display:grid;grid-template-columns:1fr 1fr;gap:28px}.summaryTable{background:white;border-radius:0;overflow:hidden}.summaryTable table{font-size:15px}.summaryTable th{position:static;background:#d6d6d6;text-transform:none;font-size:15px;color:#000;letter-spacing:0;text-align:center}.summaryTable td{text-align:center;color:#000;background:white}.summaryTable td:first-child{text-align:left}.summaryCap{background:white;color:#000;text-align:center;font-weight:950;font-size:17px;padding:8px}.summaryTotal td{background:#d6d6d6!important;font-weight:950}.expenseSummary h3{margin:26px 0 0;background:#ffff00;text-align:center;padding:8px;font-size:20px}.expenseSummary th{background:#9fc3e4!important;color:#000!important;text-transform:none!important;font-size:14px!important;text-align:center}.expenseSummary td{text-align:right}.expenseSummary td:first-child{text-align:left;background:#f3f6f9}.expenseSummary .summaryTotal td{border-top:3px double #000}.clickDark{cursor:pointer;color:#003f7d;text-decoration:underline;text-underline-offset:3px;font-weight:950}@media(max-width:1000px){.summaryGrid{grid-template-columns:1fr}.summaryTitle{font-size:17px}}@media(max-width:1100px){.kpis,.charts,.charts2{grid-template-columns:1fr}.chartWrap{height:310px}}@media(max-width:720px){header,main,footer{padding-left:16px;padding-right:16px}.title h1{font-size:22px}.kpis{grid-template-columns:1fr}.filterBox select,.filterBox button{width:100%}.filters{width:100%}.filterBox{flex:1 1 100%}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div class="title"><h1>SPM NIWAS Training Performance Dashboard</h1><p>Dynamic dashboard based on live Google Sheets: expenditure, participants, modes, programmes and financial year trends.</p></div>
+    <div class="filters">
+      <div class="filterBox"><label>Financial Year</label><select id="fyFilter"><option value="All">All Financial Years</option><option>FY 2022-23</option><option>FY 2023-24</option><option>FY 2024-25</option><option>FY 2025-26</option><option>FY 2026-27</option><option>FY 2027-28</option></select></div>
+      <div class="filterBox"><label>Programme</label><select id="programFilter"><option value="All">All Programmes</option></select></div>
+      <div class="filterBox"><label>Mode</label><select id="modeFilter"><option value="All">All Modes</option></select></div>
+      <div class="filterBox"><label>&nbsp;</label><button onclick="loadAll()">Refresh Live Data</button></div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tabBtn active" data-tab="overviewTab" onclick="switchTab('overviewTab')">Overview Dashboard</button>
+    <button class="tabBtn" data-tab="trainingCountTab" onclick="switchTab('trainingCountTab')">Number of Trainings</button>
+    <button class="tabBtn" data-tab="statusSummaryTab" onclick="switchTab('statusSummaryTab')">Physical / Online Status</button>
+  </div>
+</header>
+<main>
+  <div id="status" class="status"></div>
+  <section id="overviewTab" class="tabPanel active">
+  <section class="grid kpis">
+    <div class="card kpi"><div class="label">Total Expenditure</div><div id="kpiExpense" class="value">—</div><div class="hint">as per expenditure sheet</div></div>
+    <div class="card kpi"><div class="label">Training Entries</div><div id="kpiTrainings" class="value">—</div><div class="hint">filtered records</div></div>
+    <div class="card kpi"><div class="label">Officials Trained</div><div id="kpiParticipants" class="value">—</div><div class="hint">from participant sheets</div></div>
+    <div class="card kpi"><div class="label">Average Cost / Training</div><div id="kpiAvg" class="value">—</div><div class="hint">expenditure divided by training entries</div></div>
+    <div class="card kpi"><div class="label">Highest Cost Head</div><div id="kpiHead" class="value">—</div><div class="hint">major expenditure component</div></div>
+  </section>
+  <section class="grid charts">
+    <div class="card"><h2>Financial Year-wise Expenditure by Programme</h2><div class="chartWrap"><canvas id="fyProgramChart"></canvas></div></div>
+    <div class="card"><h2>Training Mode Mix</h2><div class="chartWrap"><canvas id="modeChart"></canvas></div></div>
+  </section>
+  <section class="grid charts2">
+    <div class="card"><h2>Expenditure by Cost Head</h2><div class="chartWrap"><canvas id="costHeadChart"></canvas></div></div>
+    <div class="card"><h2>Officials Trained by FY and Mission</h2><div class="chartWrap"><canvas id="participantsChart"></canvas></div></div>
+  </section>
+  <section class="card tableCard">
+    <div class="tableTools"><div><h2 style="margin-bottom:4px">Detailed Training Expenditure Table</h2><div class="small">Search and filters apply instantly. The table is rebuilt from live Google Sheet data.</div></div><input id="tableSearch" class="search" placeholder="Search course, programme, mode..." oninput="render()"></div>
+    <div class="tableWrap"><table id="detailTable"></table></div>
+  </section>
+  </section>
+  <section id="trainingCountTab" class="tabPanel">
+    <section class="grid kpis">
+      <div class="card kpi"><div class="label">Total No. of Trainings</div><div id="countTotalTrainings" class="value">—</div><div class="hint">unique training/course entries</div></div>
+      <div class="card kpi"><div class="label">FYs Covered</div><div id="countFYs" class="value">—</div><div class="hint">within selected filter</div></div>
+      <div class="card kpi"><div class="label">Top Mode</div><div id="countTopMode" class="value">—</div><div class="hint">by number of trainings</div></div>
+      <div class="card kpi"><div class="label">Top Programme</div><div id="countTopProgramme" class="value">—</div><div class="hint">by number of trainings</div></div>
+      <div class="card kpi"><div class="label">Avg. Trainings / FY</div><div id="countAvgFY" class="value">—</div><div class="hint">based on visible FYs</div></div>
+    </section>
+    <section class="grid charts">
+      <div class="card"><h2>Number of Trainings by Financial Year</h2><div class="chartWrap"><canvas id="trainingsByFYChart"></canvas></div></div>
+      <div class="card"><h2>Number of Trainings by Mode</h2><div class="chartWrap"><canvas id="trainingsByModeChart"></canvas></div></div>
+    </section>
+    <section class="grid charts2">
+      <div class="card"><h2>Number of Trainings by Programme</h2><div class="chartWrap"><canvas id="trainingsByProgrammeChart"></canvas></div></div>
+      <div class="card"><h2>FY-wise Training Count Table</h2><div class="tableWrap"><table id="trainingCountTable"></table></div></div>
+    </section>
+  </section>
+  <section id="statusSummaryTab" class="tabPanel">
+    <section class="card tableCard">
+      <div class="tableTools">
+        <div>
+          <h2 style="margin-bottom:4px">Status of Training Programmes Conducted at SPM NIWAS</h2>
+          <div class="small">Dynamic physical and online summary generated from the live participant and expenditure sheets. All numbers are clickable for detail verification.</div>
+        </div>
+      </div>
+      <div id="statusDashboardArea"></div>
+    </section>
+  </section>
+
+</main>
+<div id="drillOverlay" class="drillOverlay" onclick="if(event.target.id==='drillOverlay') closeDrilldown()">
+  <div class="drillBox">
+    <div class="drillHead"><h2 id="drillTitle">Detail Records</h2><button onclick="closeDrilldown()">Close</button></div>
+    <div id="drillBody" class="drillBody"></div>
+  </div>
+</div>
+
+<footer>Designed for live Google Sheets. For best results, keep the source sheets shared as “Anyone with the link can view”. If the structure of columns changes, update the CONFIG section at the top of the script. The Number of Trainings tab is calculated dynamically from the filtered training records.</footer>
+<script>
+const CONFIG={
+  expenditure:{id:'1aAgDnovRCH8D8xoZvDB4_41wUJdA1qQjPL4ZkhH2mQA',sheets:['Sheet1','Report']},
+  participants:{id:'1QBiH1F0IvXaKWKaOkqfDVnHPioQw2BDGH2Ia5CILElg',sheets:['Dashboard','Physical','Online','Offsite','Certificate course','Webinar','Workshop','Report']}
+};
+const FY_ORDER=['FY 2022-23','FY 2023-24','FY 2024-25','FY 2025-26','FY 2026-27','FY 2027-28'];
+let raw={expense:[],participantRows:[]}, charts={};
+function showStatus(msg,isError=false){const el=document.getElementById('status');el.style.display=msg?'block':'none';el.style.background=isError?'#fff0f0':'#fff7de';el.style.borderColor=isError?'#f0aaaa':'#f5d37b';el.style.color=isError?'#8a1f1f':'#704f00';el.innerHTML=msg||'';}
+function gvizUrl(id,sheet){return `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheet)}&t=${Date.now()}`}
+async function fetchSheet(id,sheet){const res=await fetch(gvizUrl(id,sheet)); if(!res.ok) throw new Error(`${sheet}: ${res.status}`); const txt=await res.text(); const json=JSON.parse(txt.substring(txt.indexOf('{'),txt.lastIndexOf('}')+1)); const cols=json.table.cols.map((c,i)=>((c.label||c.id||`Col${i+1}`).trim()||`Col${i+1}`)); return (json.table.rows||[]).map(r=>{let o={__sheet:sheet,__cells:[],__cols:cols}; (r.c||[]).forEach((c,i)=>{const val=c?(c.f??c.v??''):''; o.__cells[i]=val; let key=cols[i]||`Col${i+1}`; if(o[key]!==undefined) key=`${key}_${i+1}`; o[key]=val;}); return o;}).filter(o=>(o.__cells||[]).some(v=>String(v).trim()!==''));}
+function num(v){if(v==null)return 0; let s=String(v).replace(/[₹,\s]/g,''); let n=parseFloat(s); return isNaN(n)?0:n;}
+function fmtMoney(n){return new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(n||0)}
+function fmt(n){return new Intl.NumberFormat('en-IN').format(Math.round(n||0))}
+function fyFromDate(v){let s=String(v||''); let m=s.match(/(\d{1,2})[-\/\.](\d{1,2})[-\/\.](\d{4})/); if(!m){m=s.match(/(\d{4})/); if(!m)return 'Unknown'; let y=+m[1]; return `FY ${y}-${String(y+1).slice(-2)}`;} let mon=+m[2], y=+m[3]; let start=mon>=4?y:y-1; return `FY ${start}-${String(start+1).slice(-2)}`;}
+function findVal(row,names){let keys=Object.keys(row); for(const n of names){let k=keys.find(x=>x.toLowerCase().replace(/[^a-z0-9]/g,'').includes(n)); if(k)return row[k];} return '';}
+function normaliseExpense(rows){return rows.map(r=>{
+  const program=findVal(r,['program','mission'])||Object.values(r)[0]; const name=findVal(r,['trainingname','nameofcourse','course'])||Object.values(r)[1]; const mode=findVal(r,['trainingmode','mode'])||''; const date=findVal(r,['date','dates'])||'';
+  const total=findVal(r,['total']); const heads=['Honorarium (RP)','TA (RP)','Transportation','Hotel','Food','Training Kit','Photo','Printing','Training Asst.','Misc.'];
+  let out={program:String(program||'').trim(),name:String(name||'').trim(),mode:String(mode||'').trim(),date:String(date||'').trim(),fy:fyFromDate(date),total:num(total),heads:{},__sheet:r.__sheet};
+  heads.forEach(h=>{let v=findVal(r,[h.toLowerCase().replace(/[^a-z0-9]/g,'')]); out.heads[h]=num(v);});
+  if(out.total===0) out.total=Object.values(out.heads).reduce((a,b)=>a+b,0); return out;
+}).filter(x=>x.name && x.name.toLowerCase()!=='training name' && (x.total>0 || x.date || x.mode));}
+
+function toFY(v){let s=String(v||'').trim(); let m=s.match(/FY\s*(20\d{2})\s*[-–]\s*(\d{2})/i)||s.match(/(20\d{2})\s*[-–]\s*(\d{2})/); if(m) return `FY ${m[1]}-${m[2]}`; let m2=s.match(/(?:^|\b)(\d{2})\s*[-–]\s*(\d{2})(?:\b|$)/); if(m2){let y=2000+Number(m2[1]); return `FY ${y}-${m2[2]}`;} return fyFromDate(s);}
+const STATE_PATTERNS=['andhra','arunachal','assam','bihar','chhattisgarh','goa','gujarat','haryana','himachal','jharkhand','karnataka','kerala','madhya','maharashtra','manipur','meghalaya','mizoram','nagaland','odisha','orissa','punjab','rajasthan','sikkim','tamil','telangana','tripura','uttar','uttarakhand','west bengal','andaman','chandigarh','dadra','daman','delhi','jammu','ladakh','lakshadweep','puducherry'];
+function isStateName(v){let s=String(v||'').toLowerCase().replace(/[^a-z ]/g,' ').replace(/\s+/g,' ').trim(); return STATE_PATTERNS.some(p=>s.includes(p));}
+function detectProgramFromText(txt){let s=String(txt||'').toUpperCase(); if(s.includes('SBM')) return 'SBM'; if(s.includes('JJM')) return 'JJM'; return ''}
+function parseDashboardParticipantRows(rows){let out=[], section=''; rows.filter(r=>r.__sheet==='Dashboard').forEach(r=>{const cells=(r.__cells||[]).map(x=>String(x||'').trim()); const joined=cells.join(' ').toUpperCase(); if(joined.includes('PHYSICAL')) section='Physical'; if(joined.includes('ONLINE')) section='Online'; const fyIdx=[]; cells.forEach((c,i)=>{if(/^(FY\s*)?20\d{2}\s*[-–]\s*\d{2}$/.test(c)) fyIdx.push(i);}); if(fyIdx.length>=2){let i=fyIdx[1], jjm=num(cells[i+1]), sbm=num(cells[i+2]), total=num(cells[i+3])||jjm+sbm; if(total>0) out.push({fy:toFY(cells[i]),mode:section||'Dashboard',program:'All',total,jjm,sbm,source:'Dashboard pivot',detail:'Dashboard official-trained pivot row'});} else if(fyIdx.length===1 && joined.includes('OFFICIAL')){let i=fyIdx[0], jjm=num(cells[i+1]), sbm=num(cells[i+2]), total=num(cells[i+3])||jjm+sbm; if(total>0) out.push({fy:toFY(cells[i]),mode:section||'Dashboard',program:'All',total,jjm,sbm,source:'Dashboard pivot',detail:'Dashboard official-trained pivot row'});} }); return out;}
+function parseDetailParticipantRows(rows){let out=[]; const bySheet={}; rows.filter(r=>r.__sheet!=='Dashboard' && r.__sheet!=='Report').forEach(r=>(bySheet[r.__sheet]=bySheet[r.__sheet]||[]).push(r));
+  Object.entries(bySheet).forEach(([sheet,rs])=>{let headerIdx=-1, stateCols=[]; const headerLabels=(rs[0]&&rs[0].__cols)||[]; headerLabels.forEach((c,i)=>{if(isStateName(c)) stateCols.push(i)}); if(stateCols.length>=2) headerIdx=-1; else {stateCols=[]; for(let ri=0;ri<Math.min(rs.length,15);ri++){const cells=rs[ri].__cells||[]; const cols=[]; cells.forEach((c,i)=>{if(isStateName(c)) cols.push(i)}); if(cols.length>=2){headerIdx=ri; stateCols=cols; break;}}}
+    if(stateCols.length){let currentFY='Unknown', currentProgram=detectProgramFromText(sheet)||''; for(let ri=0;ri<rs.length;ri++){const cells=rs[ri].__cells||[]; const text=cells.join(' '); const rowFY=toFY(text); if(rowFY!=='Unknown') currentFY=rowFY; const rowProg=detectProgramFromText(text); if(rowProg) currentProgram=rowProg; if(ri<=headerIdx) continue; const total=stateCols.reduce((a,i)=>a+num(cells[i]),0); if(total<=0) continue; const fy=currentFY; if(fy==='Unknown') continue; const program=currentProgram||'Other'; const jjm=program==='JJM'?total:0, sbm=program==='SBM'?total:0; const name=(cells.find(c=>String(c||'').length>12 && !String(c).match(/^\d/))||sheet); out.push({fy,mode:sheet,program,total,jjm,sbm,source:sheet,detail:name,stateWise:true});}}
+    else { // webinar / overall sheets: find participant/total columns or overall numeric counts
+      let header=null; for(let ri=0;ri<Math.min(rs.length,10);ri++){const cells=rs[ri].__cells||[]; if(cells.join(' ').toLowerCase().match(/participant|official|trained|total/)){header={ri,cells}; break;}}
+      let candidateCols=[]; if(header){header.cells.forEach((c,i)=>{let h=String(c||'').toLowerCase(); if(h.match(/participant|official|trained|total/) && !h.match(/date|course|training/)) candidateCols.push(i);});}
+      let currentFY='Unknown', currentProgram=detectProgramFromText(sheet)||''; for(let ri=0;ri<rs.length;ri++){const cells=rs[ri].__cells||[]; const text=cells.join(' '); const rowFY=toFY(text); if(rowFY!=='Unknown') currentFY=rowFY; const rowProg=detectProgramFromText(text); if(rowProg) currentProgram=rowProg; if(header && ri<=header.ri) continue; const fy=currentFY; if(fy==='Unknown') continue; const nums=(candidateCols.length?candidateCols.map(i=>num(cells[i])):cells.map(num)).filter(n=>n>0 && n<10000); const total=nums.length?Math.max(...nums):0; if(total<=0) continue; const program=currentProgram||'Other'; out.push({fy,mode:sheet,program,total,jjm:program==='JJM'?total:0,sbm:program==='SBM'?total:0,source:sheet,detail:(cells.find(c=>String(c||'').length>12)||sheet),overall:true});}
+    }
+  }); return out;}
+function normaliseParticipants(rows){let details=parseDetailParticipantRows(rows); if(details.length) return details; return parseDashboardParticipantRows(rows);}
+async function loadAll(){showStatus('Loading live data from both Google Sheets...'); try{
+  const expSheets=await Promise.allSettled(CONFIG.expenditure.sheets.map(s=>fetchSheet(CONFIG.expenditure.id,s))); const partSheets=await Promise.allSettled(CONFIG.participants.sheets.map(s=>fetchSheet(CONFIG.participants.id,s)));
+  const expRows=expSheets.flatMap(x=>x.status==='fulfilled'?x.value:[]); const partRows=partSheets.flatMap(x=>x.status==='fulfilled'?x.value:[]);
+  raw.expense=normaliseExpense(expRows); raw.participantRows=normaliseParticipants(partRows);
+  populateFilters(); render(); showStatus(`Live data loaded: ${raw.expense.length} expenditure records and ${raw.participantRows.length} participant detail rows.`);
+ }catch(e){showStatus(`Could not load live data. Please ensure both Google Sheets are shared as “Anyone with the link can view”. Technical detail: ${e.message}`,true);}}
+function populateFilters(){const ps=[...new Set(raw.expense.map(x=>x.program).filter(Boolean))].sort(); const ms=[...new Set(raw.expense.map(x=>x.mode).filter(Boolean))].sort(); fill('programFilter',['All',...ps]); fill('modeFilter',['All',...ms]);}
+function fill(id,arr){const el=document.getElementById(id), cur=el.value; el.innerHTML=arr.map(x=>`<option value="${x}">${x==='All'?'All':x}</option>`).join(''); if(arr.includes(cur))el.value=cur;}
+function filtered(){let fy=document.getElementById('fyFilter').value, p=document.getElementById('programFilter').value, m=document.getElementById('modeFilter').value; return raw.expense.filter(x=>(fy==='All'||x.fy===fy)&&(p==='All'||x.program===p)&&(m==='All'||x.mode===m));}
+function partFiltered(){let fy=document.getElementById('fyFilter').value; return raw.participantRows.filter(x=>fy==='All'||x.fy===fy);}
+
+function uniqueTrainingKey(x){return [x.fy,x.program,x.name,x.mode,x.date].map(v=>String(v||'').trim().toLowerCase()).join('|');}
+function uniqueTrainings(data){const seen=new Set(); return data.filter(x=>{const k=uniqueTrainingKey(x); if(seen.has(k)) return false; seen.add(k); return true;});}
+function switchTab(tabId){document.querySelectorAll('.tabPanel').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tabBtn').forEach(x=>x.classList.remove('active'));document.getElementById(tabId).classList.add('active');const btn=document.querySelector(`[data-tab="${tabId}"]`);if(btn)btn.classList.add('active'); setTimeout(()=>Object.values(charts).forEach(c=>c&&c.resize&&c.resize()),50);}
+function countGroup(arr,key){return arr.reduce((a,x)=>{let k=typeof key==='function'?key(x):x[key]||'Not specified'; a[k]=(a[k]||0)+1; return a;},{});}
+function renderTrainingCounts(data){const unique=uniqueTrainings(data); const fyCounts=countGroup(unique,'fy'), modeCounts=countGroup(unique,'mode'), progCounts=countGroup(unique,'program'); const visibleFYs=FY_ORDER.filter(f=>(fyCounts[f]||0)>0); const topMode=Object.entries(modeCounts).sort((a,b)=>b[1]-a[1])[0]; const topProg=Object.entries(progCounts).sort((a,b)=>b[1]-a[1])[0];
+  countTotalTrainings.innerHTML=`<span class="clickMetric" onclick="openTrainingDrilldown('All Trainings', {})">${fmt(unique.length)}</span>`;
+  countFYs.innerHTML=`<span class="clickMetric" onclick="openTrainingDrilldown('FYs Covered', {})">${fmt(visibleFYs.length)}</span>`;
+  countTopMode.innerHTML=topMode?`<span class="clickMetric" onclick="openTrainingDrilldown('Top Mode: ${esc(topMode[0])}', {mode:'${js(topMode[0])}'})">${esc(topMode[0])} (${fmt(topMode[1])})</span>`:'—';
+  countTopProgramme.innerHTML=topProg?`<span class="clickMetric" onclick="openTrainingDrilldown('Top Programme: ${esc(topProg[0])}', {program:'${js(topProg[0])}'})">${esc(topProg[0])} (${fmt(topProg[1])})</span>`:'—';
+  countAvgFY.textContent=visibleFYs.length?fmt(unique.length/visibleFYs.length):'0';
+  chart('trainingsByFYChart','bar',{labels:FY_ORDER,datasets:[{label:'No. of Trainings',data:FY_ORDER.map(f=>fyCounts[f]||0),borderWidth:1}]},{onClick:(evt,els)=>{if(els.length){const f=FY_ORDER[els[0].index]; openTrainingDrilldown('Trainings in '+f,{fy:f});}}});
+  chart('trainingsByModeChart','doughnut',{labels:Object.keys(modeCounts),datasets:[{data:Object.values(modeCounts),borderWidth:2}]},{cutout:'60%',onClick:(evt,els)=>{if(els.length){const m=Object.keys(modeCounts)[els[0].index]; openTrainingDrilldown('Trainings by Mode: '+m,{mode:m});}}});
+  const progEntries=Object.entries(progCounts).sort((a,b)=>b[1]-a[1]); chart('trainingsByProgrammeChart','bar',{labels:progEntries.map(x=>x[0]),datasets:[{label:'No. of Trainings',data:progEntries.map(x=>x[1]),borderWidth:1}]},{indexAxis:'y',onClick:(evt,els)=>{if(els.length){const p=progEntries[els[0].index][0]; openTrainingDrilldown('Trainings by Programme: '+p,{program:p});}}});
+  const table=document.getElementById('trainingCountTable'); const modes=[...new Set(unique.map(x=>x.mode||'Not specified'))].sort(); table.innerHTML=`<thead><tr><th>Financial Year</th><th>Total Trainings</th>${modes.map(m=>`<th>${esc(m)}</th>`).join('')}</tr></thead><tbody>${FY_ORDER.map(f=>{const rows=unique.filter(x=>x.fy===f); return `<tr><td><span class="pill">${f}</span></td><td><button class="miniLink" onclick="openTrainingDrilldown('Trainings in ${f}', {fy:'${f}'})">${fmt(rows.length)}</button></td>${modes.map(m=>{const c=rows.filter(x=>(x.mode||'Not specified')===m).length; return `<td><button class="miniLink" onclick="openTrainingDrilldown('Trainings in ${f} - ${esc(m)}', {fy:'${f}',mode:'${js(m)}'})">${fmt(c)}</button></td>`}).join('')}</tr>`}).join('')}</tbody>`;
+}
+
+function normProgram(p){let s=String(p||'').toUpperCase(); if(s.includes('SBM')) return 'SBM'; if(s.includes('JJM')) return 'JJM'; return String(p||'Other').trim()||'Other';}
+function isMode(x,mode){return String(x.mode||'').toLowerCase().includes(mode.toLowerCase());}
+function fyRows(fys){return FY_ORDER.filter(f=>fys.includes(f));}
+function sumBy(arr, fn){return arr.reduce((a,x)=>a+num(fn(x)),0);}
+function statusTable(modeLabel, title, isOfficials=false){
+  const fy=document.getElementById('fyFilter').value;
+  const modeRows=raw.participantRows.filter(x=>isMode(x,modeLabel) && (fy==='All'||x.fy===fy));
+  const fys=fyRows([...new Set(modeRows.map(x=>x.fy))]);
+  let totalJJM=0,totalSBM=0,total=0;
+  let body=fys.map(f=>{let rows=modeRows.filter(x=>x.fy===f); let jjm=sumBy(rows,x=>x.jjm), sbm=sumBy(rows,x=>x.sbm), tot=sumBy(rows,x=>x.total)||jjm+sbm; totalJJM+=jjm; totalSBM+=sbm; total+=tot; return `<tr><td>${esc(f.replace('FY ',''))}</td><td><span class="clickDark" onclick="openParticipantDrilldown('${modeLabel} ${isOfficials?'Officials':'Trainings'} JJM ${f}', {fy:'${f}', mission:'JJM', mode:'${modeLabel}'})">${fmt(jjm)}</span></td><td><span class="clickDark" onclick="openParticipantDrilldown('${modeLabel} ${isOfficials?'Officials':'Trainings'} SBM ${f}', {fy:'${f}', mission:'SBM', mode:'${modeLabel}'})">${fmt(sbm)}</span></td><td><span class="clickDark" onclick="openParticipantDrilldown('${modeLabel} ${isOfficials?'Officials':'Trainings'} Total ${f}', {fy:'${f}', mission:'Total', mode:'${modeLabel}'})">${fmt(tot)}</span></td></tr>`}).join('');
+  if(!body) body='<tr><td colspan="4">No data available under selected filter</td></tr>';
+  return `<div class="summaryTable"><div class="summaryCap">${title}</div><table><thead><tr><th>FYs</th><th>JJM</th><th>SBM</th><th>Total</th></tr></thead><tbody>${body}<tr class="summaryTotal"><td>Total</td><td><span class="clickDark" onclick="openParticipantDrilldown('${modeLabel} Total JJM', {mission:'JJM', mode:'${modeLabel}'})">${fmt(totalJJM)}</span></td><td><span class="clickDark" onclick="openParticipantDrilldown('${modeLabel} Total SBM', {mission:'SBM', mode:'${modeLabel}'})">${fmt(totalSBM)}</span></td><td><span class="clickDark" onclick="openParticipantDrilldown('${modeLabel} Grand Total', {mission:'Total', mode:'${modeLabel}'})">${fmt(total)}</span></td></tr></tbody></table></div>`;
+}
+function trainingCountStatusTable(data, modeLabel, title){
+  const rows=data.filter(x=>isMode(x,modeLabel));
+  const fys=fyRows([...new Set(rows.map(x=>x.fy))]); let totals={JJM:0,SBM:0,Total:0};
+  let body=fys.map(f=>{let r=uniqueTrainings(rows.filter(x=>x.fy===f)); let j=r.filter(x=>normProgram(x.program)==='JJM').length, s=r.filter(x=>normProgram(x.program)==='SBM').length, t=r.length; totals.JJM+=j; totals.SBM+=s; totals.Total+=t; return `<tr><td>${esc(f.replace('FY ',''))}</td><td><span class="clickDark" onclick="openTrainingDrilldown('${modeLabel} Trainings JJM ${f}', {fy:'${f}', program:'JJM', mode:'${modeLabel}'})">${fmt(j)}</span></td><td><span class="clickDark" onclick="openTrainingDrilldown('${modeLabel} Trainings SBM ${f}', {fy:'${f}', program:'SBM', mode:'${modeLabel}'})">${fmt(s)}</span></td><td><span class="clickDark" onclick="openTrainingDrilldown('${modeLabel} Trainings Total ${f}', {fy:'${f}', mode:'${modeLabel}'})">${fmt(t)}</span></td></tr>`}).join('');
+  if(!body) body='<tr><td colspan="4">No data available under selected filter</td></tr>';
+  return `<div class="summaryTable"><div class="summaryCap">${title}</div><table><thead><tr><th>FYs</th><th>JJM</th><th>SBM</th><th>Total</th></tr></thead><tbody>${body}<tr class="summaryTotal"><td>Total</td><td><span class="clickDark" onclick="openTrainingDrilldown('${modeLabel} Total JJM Trainings', {program:'JJM', mode:'${modeLabel}'})">${fmt(totals.JJM)}</span></td><td><span class="clickDark" onclick="openTrainingDrilldown('${modeLabel} Total SBM Trainings', {program:'SBM', mode:'${modeLabel}'})">${fmt(totals.SBM)}</span></td><td><span class="clickDark" onclick="openTrainingDrilldown('${modeLabel} Total Trainings', {mode:'${modeLabel}'})">${fmt(totals.Total)}</span></td></tr></tbody></table></div>`;
+}
+function expenseSummaryTable(data, modeLabel, title){
+  const rows=modeLabel==='All'?data:data.filter(x=>isMode(x,modeLabel));
+  const heads=['Honorarium (RP)','TA (RP)','Transportation','Hotel','Food','Training Kit','Photo','Printing','Training Asst.','Misc.'];
+  const progs=['JJM','SBM'];
+  const body=progs.map(pr=>{let r=rows.filter(x=>normProgram(x.program)===pr); let cnt=uniqueTrainings(r).length; let t=sumBy(r,x=>x.total); return `<tr><td>${pr}</td><td><span class="clickDark" onclick="openTrainingDrilldown('${title} ${pr} trainings', {program:'${pr}'${modeLabel==='All'?'':`, mode:'${modeLabel}'`}})">${fmt(cnt)}</span></td>${heads.map(h=>`<td><span class="clickDark" onclick="openExpenseDrilldown('${title} ${pr} ${esc(h)}', {program:'${pr}', head:'${js(h)}'${modeLabel==='All'?'':`, mode:'${modeLabel}'`}})">${fmt(sumBy(r,x=>x.heads[h]))}</span></td>`).join('')}<td><span class="clickDark" onclick="openExpenseDrilldown('${title} ${pr} Total', {program:'${pr}'${modeLabel==='All'?'':`, mode:'${modeLabel}'`}})">${fmt(t)}</span></td></tr>`}).join('');
+  const totalCnt=uniqueTrainings(rows).length; const total=sumBy(rows,x=>x.total);
+  return `<div class="expenseSummary"><h3>${title}</h3><div class="tableWrap"><table><thead><tr><th>Program</th><th>No. of<br>Trainings</th>${heads.map(h=>`<th>${esc(h)}</th>`).join('')}<th>Total</th></tr></thead><tbody>${body}<tr class="summaryTotal"><td>कुल योग</td><td><span class="clickDark" onclick="openTrainingDrilldown('${title} Total Trainings', {${modeLabel==='All'?'':`mode:'${modeLabel}'`}})">${fmt(totalCnt)}</span></td>${heads.map(h=>`<td><span class="clickDark" onclick="openExpenseDrilldown('${title} Total ${esc(h)}', {head:'${js(h)}'${modeLabel==='All'?'':`, mode:'${modeLabel}'`}})">${fmt(sumBy(rows,x=>x.heads[h]))}</span></td>`).join('')}<td><span class="clickDark" onclick="openExpenseDrilldown('${title} Grand Total', {${modeLabel==='All'?'':`mode:'${modeLabel}'`}})">${fmt(total)}</span></td></tr></tbody></table></div></div>`;
+}
+function renderStatusSummary(data, parts){
+  const area=document.getElementById('statusDashboardArea'); if(!area) return;
+  area.innerHTML=`<div class="summaryBlock"><div class="summaryTitle">STATUS OF PHYSICAL TRAINING PROGRAMMES CONDUCTED AT SPM NIWAS</div><div class="summaryGrid">${trainingCountStatusTable(data,'Physical','Total No. of Trainings conducted')}${statusTable('Physical','Total No. of Officials trained',true)}</div></div><div class="summaryBlock"><div class="summaryTitle">STATUS OF ONLINE TRAINING PROGRAMMES CONDUCTED THROUGH SPM NIWAS DIGITAL ACADEMY</div><div class="summaryGrid">${trainingCountStatusTable(data,'Online','Total No. of Trainings conducted')}${statusTable('Online','Total No. of Officials trained',true)}</div></div>${expenseSummaryTable(data,'All','All trainings')}${expenseSummaryTable(data,'Physical','Physical Trainings')}${expenseSummaryTable(data,'Online','Online Trainings')}`;
+}
+
+function groupSum(arr,key,val='total'){return arr.reduce((a,x)=>{let k=typeof key==='function'?key(x):x[key]; a[k]=(a[k]||0)+(typeof val==='function'?val(x):x[val]||0); return a;},{});}
+function render(){const data=filtered(), parts=partFiltered(); const total=data.reduce((a,x)=>a+x.total,0), count=data.length, pTotal=parts.reduce((a,x)=>a+x.total,0); const headTotals={}; data.forEach(x=>Object.entries(x.heads).forEach(([h,v])=>headTotals[h]=(headTotals[h]||0)+v)); const topHead=Object.entries(headTotals).sort((a,b)=>b[1]-a[1])[0];
+  kpiExpense.innerHTML=`<span class="clickMetric" onclick="openExpenseDrilldown('Total Expenditure', {})">${fmtMoney(total)}</span>`; kpiTrainings.innerHTML=`<span class="clickMetric" onclick="openExpenseDrilldown('Training Entries', {})">${fmt(count)}</span>`; kpiParticipants.innerHTML=`<span class="clickMetric" onclick="openParticipantDrilldown('Officials Trained', {})">${fmt(pTotal)}</span>`; kpiAvg.innerHTML=`<span class="clickMetric" onclick="openExpenseDrilldown('Average Cost / Training', {})">${fmtMoney(count?total/count:0)}</span>`; kpiHead.innerHTML=topHead?`<span class="clickMetric" onclick="openExpenseDrilldown('Cost Head: ${esc(topHead[0])}', {head:'${js(topHead[0])}'})">${esc(topHead[0])}</span>`:'—';
+  drawFYProgram(data); drawMode(data); drawHeads(headTotals); drawParticipants(parts); renderTable(data); renderTrainingCounts(data); renderStatusSummary(data, parts);
+}
+function chart(id,type,data,options){if(charts[id])charts[id].destroy(); charts[id]=new Chart(document.getElementById(id),{type,data,options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:c=>`${c.dataset.label||c.label}: ${fmt(c.raw)}`}}},scales:type==='doughnut'?{}:{y:{beginAtZero:true,ticks:{callback:v=>fmt(v)}},x:{grid:{display:false}}},...options}});}
+function drawFYProgram(data){const fys=FY_ORDER, programs=[...new Set(data.map(x=>x.program||'Other'))]; const ds=programs.map((p,i)=>({label:p,data:fys.map(f=>data.filter(x=>x.fy===f&&(x.program||'Other')===p).reduce((a,x)=>a+x.total,0)),borderWidth:1})); chart('fyProgramChart','bar',{labels:fys,datasets:ds},{scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true,ticks:{callback:v=>fmt(v)}}},onClick:(evt,els)=>{if(els.length){const e=els[0]; openExpenseDrilldown('Expenditure: '+programs[e.datasetIndex]+' / '+fys[e.index],{fy:fys[e.index],program:programs[e.datasetIndex]});}}})}
+function drawMode(data){const g=groupSum(data,'mode'); chart('modeChart','doughnut',{labels:Object.keys(g),datasets:[{data:Object.values(g),borderWidth:2}]},{cutout:'62%',onClick:(evt,els)=>{if(els.length){const m=Object.keys(g)[els[0].index]; openExpenseDrilldown('Training Mode: '+m,{mode:m});}}})}
+function drawHeads(headTotals){const entries=Object.entries(headTotals).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]); chart('costHeadChart','bar',{labels:entries.map(x=>x[0]),datasets:[{label:'Amount',data:entries.map(x=>x[1]),borderWidth:1}]},{indexAxis:'y',onClick:(evt,els)=>{if(els.length){const h=entries[els[0].index][0]; openExpenseDrilldown('Cost Head: '+h,{head:h});}}})}
+function drawParticipants(parts){let fys=FY_ORDER; let ds=[{label:'JJM',data:fys.map(f=>parts.filter(x=>x.fy===f).reduce((a,x)=>a+x.jjm,0))},{label:'SBM',data:fys.map(f=>parts.filter(x=>x.fy===f).reduce((a,x)=>a+x.sbm,0))},{label:'Total',data:fys.map(f=>parts.filter(x=>x.fy===f).reduce((a,x)=>a+x.total,0)),type:'line',tension:.35,borderWidth:3}]; chart('participantsChart','bar',{labels:fys,datasets:ds},{onClick:(evt,els)=>{if(els.length){const e=els[0]; openParticipantDrilldown('Officials Trained: '+ds[e.datasetIndex].label+' / '+fys[e.index],{fy:fys[e.index],mission:ds[e.datasetIndex].label});}}})}
+function renderTable(data){let q=(document.getElementById('tableSearch').value||'').toLowerCase(); let rows=data.filter(x=>[x.program,x.name,x.mode,x.date,x.fy].join(' ').toLowerCase().includes(q)).sort((a,b)=>b.total-a.total).slice(0,300); const table=document.getElementById('detailTable'); table.innerHTML=`<thead><tr><th>FY</th><th>Programme</th><th>Training Name</th><th>Mode</th><th>Date</th><th>Total Expenditure</th></tr></thead><tbody>${rows.map((x,i)=>`<tr><td><span class="pill">${esc(x.fy)}</span></td><td>${esc(x.program)}</td><td>${esc(x.name)}</td><td>${esc(x.mode)}</td><td>${esc(x.date)}</td><td><button class="miniLink" onclick="openExpenseDrilldown('Training Detail', {name:'${js(x.name)}', fy:'${js(x.fy)}'})">${fmtMoney(x.total)}</button></td></tr>`).join('')}</tbody>`;}
+
+function esc(v){return String(v??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+function js(v){return String(v??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ');}
+function closeDrilldown(){document.getElementById('drillOverlay').style.display='none';}
+function openDrilldown(title, rows, type='expense'){
+  document.getElementById('drillTitle').textContent=title;
+  const body=document.getElementById('drillBody');
+  if(!rows.length){body.innerHTML='<div class="mutedNote">No matching detail record found for this number under the current filters.</div>'; document.getElementById('drillOverlay').style.display='flex'; return;}
+  const totalExp=rows.reduce((a,x)=>a+(x.total||0),0);
+  let chips=`<div class="drillSummary"><span class="summaryChip">Records: ${fmt(rows.length)}</span>`;
+  if(type==='expense'||type==='training') chips+=`<span class="summaryChip">Expenditure: ${fmtMoney(totalExp)}</span>`;
+  if(type==='participant') chips+=`<span class="summaryChip">Officials Trained: ${fmt(rows.reduce((a,x)=>a+(x.total||0),0))}</span>`;
+  chips+='</div><div class="mutedNote">These are the filtered detail records corresponding to the clicked number. Existing top filters are respected.</div>';
+  if(type==='participant'){
+    body.innerHTML=chips+`<table><thead><tr><th>FY</th><th>Sheet / Mode</th><th>Programme</th><th>Detail / Event</th><th>JJM</th><th>SBM</th><th>Total Officials Trained</th></tr></thead><tbody>${rows.map(x=>`<tr><td><span class="pill">${esc(x.fy)}</span></td><td>${esc(x.mode||x.source)}</td><td>${esc(x.program||'')}</td><td>${esc(x.detail||'')}</td><td>${fmt(x.jjm)}</td><td>${fmt(x.sbm)}</td><td><b>${fmt(x.total)}</b></td></tr>`).join('')}</tbody></table>`;
+  } else {
+    body.innerHTML=chips+`<table><thead><tr><th>FY</th><th>Programme</th><th>Training Name</th><th>Mode</th><th>Date</th><th>Total Expenditure</th></tr></thead><tbody>${rows.map(x=>`<tr><td><span class="pill">${esc(x.fy)}</span></td><td>${esc(x.program)}</td><td>${esc(x.name)}</td><td>${esc(x.mode)}</td><td>${esc(x.date)}</td><td><b>${fmtMoney(x.total)}</b></td></tr>`).join('')}</tbody></table>`;
+  }
+  document.getElementById('drillOverlay').style.display='flex';
+}
+function filterExpenseRows(criteria={}){return filtered().filter(x=>(!criteria.fy||x.fy===criteria.fy)&&(!criteria.program||((x.program||'Other')===criteria.program)||normProgram(x.program)===criteria.program)&&(!criteria.mode||(x.mode||'Not specified')===criteria.mode)&&(!criteria.name||x.name===criteria.name)&&(!criteria.head||(x.heads&&num(x.heads[criteria.head])>0)));}
+function filterTrainingRows(criteria={}){return uniqueTrainings(filtered()).filter(x=>(!criteria.fy||x.fy===criteria.fy)&&(!criteria.program||((x.program||'Other')===criteria.program)||normProgram(x.program)===criteria.program)&&(!criteria.mode||(x.mode||'Not specified')===criteria.mode));}
+function filterParticipantRows(criteria={}){return partFiltered().filter(x=>(!criteria.fy||x.fy===criteria.fy)&&(!criteria.mode||isMode(x,criteria.mode))&&(!criteria.mission||criteria.mission==='Total'||num(x[criteria.mission.toLowerCase()])>0));}
+function openExpenseDrilldown(title, criteria){openDrilldown(title, filterExpenseRows(criteria), 'expense');}
+function openTrainingDrilldown(title, criteria){openDrilldown(title, filterTrainingRows(criteria), 'training');}
+function openParticipantDrilldown(title, criteria){openDrilldown(title, filterParticipantRows(criteria), 'participant');}
+
+['fyFilter','programFilter','modeFilter'].forEach(id=>document.getElementById(id).addEventListener('change',render));
+loadAll();
+</script>
+</body>
+</html>
